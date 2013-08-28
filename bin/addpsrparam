@@ -1,0 +1,41 @@
+'''
+Adds polarization and inclination to file files/psrextra.txt to then be compiled into pulsar catalogue.
+'''
+from numpy import radians
+import paths
+
+psrextra_path = '../' + paths.psrextra
+
+print "\nAdd polarization and inclination angles to catalogue entry for PSR.\nAssuming PSRJ name and angles in degrees.\n"
+
+print "Currently in file:",
+try:
+    f = open(psrextra_path, 'r')
+    print '\n',
+    print f.readlines()
+except IOError:
+    f = open(psrextra_path, 'w')
+    print 'nothing.'
+    f.close()
+    
+addother='y'
+
+data = ''
+
+while addother == 'y':
+
+    psr = raw_input('PSRJ: ')
+    pol_s = raw_input('Polarization: ')
+    inc_s = raw_input('Inclination: ')
+
+    pol = str(radians(float(pol_s)))
+    inc = str(radians(float(inc_s)))
+    
+    data += "%(psr)s,%(pol)s,%(inc)s\n" % locals()
+    
+    addother = raw_input('Add other? (y/n): ')
+
+with open(psrextra_path, 'a') as f:
+    f.write(data)
+
+print 'Added:\n%(data)s' % locals()

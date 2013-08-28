@@ -1,0 +1,17 @@
+  ####################     
+  #                       
+  # Example 2: demonstrate use of multiple     
+  # directories for data organization.      
+  #                                        
+  ####################                    
+                                         
+  executable     = injsearchtest.py          
+  universe       = vanilla                   
+  input          = test.data                
+  output         = loop.out                
+  error          = loop.error             
+  log            = loop.log                                                    
+  request_memory = 1 GB
+                                  
+  initialdir     = run_1         
+  queue   

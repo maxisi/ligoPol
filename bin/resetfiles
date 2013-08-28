@@ -1,0 +1,35 @@
+#!/usr/bin/env python2.7
+
+import os
+import sys
+
+import paths
+
+print 'This will DELETE ALL background, catalogue and standard deviation files and the routine will have to start from scratch.'
+print "(Pulsar list and extraparams won't be deleted. Update those manually.)\n"
+
+c = raw_input('Are you sure you wish to continue? (y/n) ')
+
+if c == 'y':
+    pathlist = [
+                'files/background/',
+	        	paths.ap,
+                paths.textfromATNF,
+                paths.psrcat,
+                paths.sigma
+                ]
+    print "\nRemoving:"
+    print '%r' % pathlist
+    
+    [os.remove(pathlist[0] + f) for f in os.listdir(pathlist[0]) if f!='.DS_Store']
+
+    [os.remove(pathlist[1] + f) for f in os.listdir(pathlist[1]) if f!='.DS_Store']
+    
+    [os.remove(path) for path in pathlist[2:]]
+         
+    print "\nIt's done."
+    
+else:
+    print "Good thinking. Bye!"
+    sys.exit()
+         

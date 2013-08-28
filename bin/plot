@@ -1,0 +1,33 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from templates import antennapatterns as ap
+from templates import sidereal as sd
+
+days = 1
+t = [x+ 1056563236 for x in range(0, int(days*sd.ss), 60)]
+
+pol_list = ['pl', 'cr', 'xz', 'yz', 'br', 'lo']
+polnames = {
+            'pl': 'Plus',
+            'cr': 'Cross',
+            'xz': 'Vector_x',
+            'yz': 'Vector_y',
+            'br': 'Breathing',
+            'lo': 'Longitudinal'
+            }
+            
+det = 'LHO'
+
+pol = ap.getAP(det, t)
+
+# fig, ((ax1, ax2, ax3),(ax4,ax5,ax6)) = plt.subplots(2, 3)
+# axes = [ax1, ax2, ax3, ax4, ax5, ax6]
+fig = plt.figure(); ax = fig.add_subplot(1, 1, 1)
+
+for p in pol_list: #pi in range(0, len(pol_list)):
+    pol[p].T.plot(xticks=[])#title=polnames[p] + ' ' + det + ' response over a sidereal day')
+    plt.savefig('plots/' + p + '.png', dpi=400, bbox_inches='tight')
+#     pol[pol_list[pi]].T.plot(ax=axes[pi])
+    
+# plt.savefig('plots/pols.png', dpi=400, bbox_inches='tight')
