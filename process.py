@@ -508,6 +508,7 @@ class Frequentist(object):
         self.psr = psr
         
         self.log = logging.getLogger('Frequentist')
+        self.log.debug('Initializing frequentist sensitivity analysis.')
                 
         # data info
         self.freq = np.linspace(frange[0], frange[1], nfreq)
@@ -515,8 +516,10 @@ class Frequentist(object):
         self.background = Background(detector, psr, self.freq, filesize)
         self.background.get()
         
+        self.log.debug('Obtaining time.')
         self.t = self.background.seed.finehet.index
         
+        self.log.debug('Obtaining sigma.')
         sigma = Sigma(self.detector, self.psr, self.background.seed.finehet)
         self.sg = sigma.std
         
