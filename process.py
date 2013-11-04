@@ -262,6 +262,9 @@ class Background(object):
 
 class Sigma(object):
     def __init__(self, detector, psr, data, justload=False):
+        self.log = logging.getLogger('Sigma')
+        self.log.debug('Initializing Sigma.')
+        
         self.detector = detector
         self.psr = psr
         
@@ -275,7 +278,6 @@ class Sigma(object):
         
         self.get()
         
-        self.log = logging.getLogger('Sigma')
         
     def create(self):
         '''
