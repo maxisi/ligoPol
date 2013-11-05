@@ -525,7 +525,7 @@ class Frequentist(object):
         sigma = Sigma(self.detector, self.psr, self.background.seed.finehet)
         self.sg = sigma.std
         
-        # injection info
+        self.log.debug('Preparing injection strengths.')
         inj = np.linspace(hinjrange[0], hinjrange[1], ninj)
         injLocations = [int(x) for x in np.linspace(0, nfreq, ninj, endpoint=False)]
         self.hinj = np.zeros(nfreq)
@@ -537,7 +537,7 @@ class Frequentist(object):
         
         src = self.injection.response.src
 
-        # range info
+        self.log.debug('Preparing parameter ranges.')
         if 'psi' in rangeparam or rangeparam=='all':
             self.pol_range = [
                             src.param['POL'] - src.param['POL error'],
