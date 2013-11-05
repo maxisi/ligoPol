@@ -23,7 +23,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='temp/templates_d'+datetime.now().strftime('%Y-%m-%d %H:%M:%S')+'.log',
+                    filename='temp/templates_d'+datetime.now().strftime('%Y-%m-%d_%H-%M-%S')+'.log',
                     filemode='w')
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
@@ -62,7 +62,7 @@ class Source(object):
     
     def __init__(self, psr, loadvec=True):
         self.log = logging.getLogger('Source')
-        self.log.info('Initializing source.')
+        self.log.debug('Initializing source.')
         
         self.psr = psr
         self.npsrs = 1
@@ -347,7 +347,7 @@ class Polarizations(object):
     def __init__(self, vectors):
         # assuming vectors is of the Vectors container kind
         self.log = logging.getLogger('Polarizations')
-        self.log.debug('Initializong polarizations.')
+        self.log.debug('Initializing polarizations.')
         self.vec = vectors
     
                     
@@ -361,7 +361,7 @@ class Polarizations(object):
             
             self.log.debug('Checking if product is already defined.')
             if pairName not in dir(self):
-                self.log.debug('Defining: ' + pairname)
+                self.log.debug('Defining: ' + pairName)
                 # get vectors
                 v0 = getattr(self.vec, pair[0])     # v0 = self.vec.wx
                 v1 = getattr(self.vec, pair[1])     # v1 = self.vec.dx
@@ -444,7 +444,7 @@ class Response(object):
         
         self.log.debug('Determining what template was requested.')
         if kinds in sd.tempNames:
-            self.log.debug('Preset template.')
+            self.log.debug('Preset template ' + kinds)
             self.kinds = sd.aps[kinds]
             
         elif isinstance(kinds, list) and all([k in sd.tempNames for k in kinds]):
@@ -497,7 +497,7 @@ class Response(object):
         wxRot = -self.src.wy*np.cos(self.psi) + self.src.wx*np.sin(self.psi)
         wyRot = self.src.wx*np.cos(self.psi) + self.src.wy*np.sin(self.psi) 
         
-        self.log.debug('Packaging vectors.')
+        self.log.debug('Packing vectors.')
         vecs = Vectors(self.obs.dx, self.obs.dy, wxRot, wyRot, self.src.wz)      
            
         # Get polarizations
