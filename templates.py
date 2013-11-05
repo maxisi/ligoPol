@@ -9,6 +9,7 @@ import sys, os
 from sys import argv, exit
 import copy
 from time import time
+from datetime import datetime
 
 import sidereal as sd
 import paths
@@ -22,7 +23,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='temp/templates.log',
+                    filename='temp/templates_d'+datetime.now().strftime('%Y-%m-%d %H:%M:%S')+'.log',
                     filemode='w')
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
@@ -164,7 +165,7 @@ class Source(object):
         Loads source vectors from file.
         '''
         
-        self.log.info('Loading source vectors')
+        self.log.debug('Loading source vectors')
         
         try:
             file = pd.HDFStore(self.path, 'r')
@@ -180,7 +181,7 @@ class Source(object):
     def createVectors(self):
         # Return wave vectors for all sources listed.
         
-        self.log.info('Creating src vectors.')
+        self.log.debug('Creating src vectors.')
         
         north = np.array([0, 0, 1])
         
@@ -215,7 +216,7 @@ class Detector(object):
     
     def __init__(self, d, t=[]):
         self.log = logging.getLogger('Detector')
-        self.log.info('Initializing detector.')
+        self.log.debug('Initializing detector.')
 
         self.id = d  
         self.name = sd.detnames(d)
@@ -231,7 +232,7 @@ class Detector(object):
         '''
         Loads detector arm vectors from file.
         '''
-        self.log.info('Loading detector vectors.')
+        self.log.debug('Loading detector vectors.')
         
         try:
             file = pd.HDFStore(self.path, 'r')
@@ -251,7 +252,7 @@ class Detector(object):
         # Check if vectors are stored in file'
         self.fileload()
         
-        self.log.info('Checking vector health.')
+        self.log.debug('Checking vector health.')
         
         # Check data type'
         try:
@@ -272,7 +273,7 @@ class Detector(object):
         Returns arm vectors in Cartesian sidereal coordinates.
         '''
         
-        self.log.info('Creating detector vectors.')
+        self.log.debug('Creating detector vectors.')
         northPole = pd.Series(np.array([0, 0, 1]), index=['x', 'y', 'z'])    # Earth center to North pole
         
         self.log.debug('Retrieving detector parameters.')

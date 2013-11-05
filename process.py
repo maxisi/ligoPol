@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import datetime
 from time import time
+from datetime import datetime
 import sys
 
 import numpy as np
@@ -26,7 +27,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='temp/process.log',
+                    filename='temp/process'+datetime.now().strftime('%Y-%m-%d %H:%M:%S')+'.log',
                     filemode='w')
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
