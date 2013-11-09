@@ -775,15 +775,15 @@ class MPstats(object):
         detector
         load (indicates whether to load data on start. Default: True)                [OPT]
         pth (path where search data is located. Default is local 'files/analysis/results/a
-             tlas/' + detector + '/')                                                [OPT]
+             tlas/')                                                                 [OPT]
     Subfunctions:
         load (loads data)
         hist (histograms)
     '''
-    def __init__(self, detector, load=True, pth='files/analysis/results/atlas/' + detector + '/'):
+    def __init__(self, detector, load=True, pth='files/analysis/results/atlas/'):
         self.detector = detector
         
-        self.path = pth
+        self.path = pth + detector + '/'
         self.psrs = os.listdir(self.path)
         self.psrs.remove('.DS_Store')
         
