@@ -595,7 +595,7 @@ class Frequentist(object):
                 iota_inj = random.uniform(self.inc_range[0], self.inc_range[1])
                 phi0 = random.uniform(self.phi0_range[0], self.phi0_range[1])                    
 
-                self.log.info('POL: %f, INC: %f, PHI0: %f' % (psi, iota, phi0))
+                self.log.debug('Search with POL: %f, INC: %f' % (psi, iota))
                 
                 self.log.debug('Loop over search methods.')
                 # note: important that this follows inst loop to get same psi and iota
@@ -606,8 +606,8 @@ class Frequentist(object):
                     # inject if necessary
                     h = self.hinj[inst_number]
                     if h != 0:
-                        self.log.info(self.injection.kind + str(self.injection.pdif))
-                        self.log.info('I! %(psi_inj)f %(iota_inj)f %(phi0)f' % locals())
+                        self.log.debug(self.injection.kind + str(self.injection.pdif))
+                        self.log.debug('I! %(psi_inj)f %(iota_inj)f %(phi0)f' % locals())
                         d += h * self.injection.simulate(psi_inj, iota_inj, phase=phi0)
                     
                     self.log.debug('Get design matrix.')
@@ -663,6 +663,7 @@ class ManyPulsars(object):
         self.failed = []
         
         self.log = logging.getLogger('Many PSRs')
+        self.log.info('Analyzing '+detector+' data with '+str(methods))
     
     def census(self, ratio=[0,1]):
         # Splits list into ratio[1] parts and picks part number ratio[0].
@@ -698,7 +699,7 @@ class ManyPulsars(object):
     
     def analyze(self, injkind, ratio=[0,1], extra_name=''):
         
-        self.log.debug('Analyzing.')
+        self.log.debug('Beginning MP analysis. Injecting ' + str(injkind))
         
         # get PSR subset
         self.census(ratio)
@@ -708,8 +709,10 @@ class ManyPulsars(object):
             setattr(self,'stats'+m, pd.DataFrame(columns=self.psrlist, index=sd.statkinds))
         
         # loop over PSRs
+        count = 0
         for psr in self.psrlist:
-            self.log.info('Analyzing ' + psr)
+            count += 1
+            self.log.info('Analyzing '+psr+' ('+str(1)+'/'+str(len(self.allpsrs))+')')
             
             try:
                 ij = Frequentist(self.detector, psr, 2000, injkind, 'p', 100, rangeparam='all', filesize=200)
@@ -765,11 +768,22 @@ class MP10g4v(ManyPulsars):
   
         
 class MPstats(object):
-
-    def __init__(self, detector, load=True):
+    '''
+    Loads pulsar search data stored on indicated path and produces histograms of their
+    statistics.
+    Input:
+        detector
+        load (indicates whether to load data on start. Default: True)                [OPT]
+        pth (path where search data is located. Default is local 'files/analysis/results/a
+             tlas/' + detector + '/')                                                [OPT]
+    Subfunctions:
+        load (loads data)
+        hist (histograms)
+    '''
+    def __init__(self, detector, load=True, pth='files/analysis/results/atlas/' + detector + '/'):
         self.detector = detector
         
-        self.path = 'files/analysis/results/atlas/' + detector + '/'
+        self.path = pth
         self.psrs = os.listdir(self.path)
         self.psrs.remove('.DS_Store')
         
@@ -805,32 +819,67 @@ class MPstats(object):
             else:
                 f.close()
 
-    def hist(self, nbins=25, methods=['GR', 'G4v', 'Sid']):
+    def hist(self, nbins=25, methods=['GR', 'G4v', 'Sid'], kinds=False, log=False, together=False):
+        '''
+        Plots statistical summary data.
+        Input:
+            nbins (25)
+            methods (['GR', 'G4v', 'Sid'])
+            kinds (types of stats to be plotted. Options are (set): 'min inj det',
+                  'lin s slope', 'lin s noise', 'lin s inter', 'h rec noise', 'h rec
+                  slope', 'h rec inter'. If 'False' (default), takes full set.)
+            log (False)
+            together (if True, histograms are plotted on single figure. Def: False)
+        '''
         
-        for k in self.statdict:
+        if not kinds: kinds=self.statdict
+        
+        for k in kinds:
+            # get values to histogram
             stat = getattr(self, self.statdict[k])
             
+            stat_label = sd.statlabels[k]
+            
+            # setup save            
+            path = paths.plots + self.detector + '/manypulsars/' + k + '/'
+
+            if log:
+                stat_label += ' (log scale)'
+                logname = '_log'
+            else:
+                logname = ''
+           
+            try:
+                os.makedirs(path)
+            except:
+                pass
+            
+            plt.figure()
+            
             for m in methods:
-                plt.figure()
+                
                 # histogram
-                stat[m].hist(color=sd.pltcolor[m], bins=nbins, label=m)
+                ax = stat[m].hist(color=sd.pltcolor[m], bins=nbins, label=m, histtype='step')
+                
+                if log: ax.set_xscale('log')
                 
                 # format
                 plt.title(self.injkind + ' injection on ' + self.detector + ' data ' + k.replace('_', ' ') + ' for ' + str(len(self.psrs)-len(self.failed)) + ' PSRs')
-                plt.xlabel(sd.statlabels[k])
+                
+                plt.xlabel(stat_label)
                 plt.ylabel('Count')
                 plt.legend(numpoints=1)
                 
                 # save
-                path = paths.plots + self.detector + '/manypulsars/' + k + '/'
-                
-                try:
-                    os.makedirs(path)
-                except:
-                    pass
-                
-                plt.savefig(path + k + '_inj' + self.injkind + self.pdif + '_srch' + m + '_' + self.detector, bbox_inches='tight')
+                if not together:
+                    plt.savefig(path + k + '_inj' + self.injkind + self.pdif + '_srch' + m + '_' + self.detector + logname, bbox_inches='tight')
+                    plt.close()
+                    
+            if together:
+                plt.savefig(path + k + '_inj' + self.injkind + self.pdif + '_srchAll_' + self.detector + logname, bbox_inches='tight')
                 plt.close()
+                
+            print 'Saved in ' + path
                 
                 
 ## SPECIAL CASES
@@ -874,4 +923,3 @@ class Vela(SinglePulsar):
     def __init__(self, paramrange='all', methods=['GR', 'G4v'], extra_name='2'):
         super(Vela, self).__init__('V1', 'J0835-4510', methods=methods)
         self.scan(range=paramrange, hinjrange=[1.0E-27, 1.0E-23])
-      
