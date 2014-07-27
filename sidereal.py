@@ -209,7 +209,9 @@ statkinds = [
             'h rec slope',
             'h rec noise',
             'h rec inter',
-            'min inj det'
+            'min inj det',
+	    'lin s rmse',
+	    'h rec rmse'
             ]
             
 statlabels = {
@@ -219,5 +221,7 @@ statlabels = {
             'h rec slope' : '$h_{rec}$ fit slope',
             'h rec noise' : '$h_{rec}$ noise level',
             'h rec inter' : '$h_{rec}$ fit intersect noise level',
-            'min inj det' : 'Strength of minimum detection'
+            'min inj det' : 'Strength of minimum detection',
+            'lin s rmse'  : 'Lin. sig. fit RMSE',
+            'h rec rmse'  : '$h_{rec}$ fit RMSE'
             }

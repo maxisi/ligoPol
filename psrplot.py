@@ -36,16 +36,36 @@ def noise_line(d):
     # return corresponding constant polynomial
     return np.poly1d([max_n])
 
+def rmse(d):
+    # computes RMSE between d and its best-fit line
+
+    # get injections
+    d = d.drop([0])
+
+    x = np.reshape(d.index, (len(d), 1)) # take injections
+    y = np.reshape(d, (len(d), 1)) # take recovered values
+
+    # fit and obtain sum of residuals (squared Euclidean 2-norm for each column in b - a*x)
+    _, residuals, _, _ = np.linalg.lstsq(x, y)
+
+    # sum of residuals = Sum[(x-y)^2], so RMSE = sqrt(s.o.r/N)
+    return np.sqrt(residuals[0]/len(d))
 
 def min_det_h(d):
     # assumes input is a series
     # get max noise
     noise = noise_line(d)(1)
+    
     # find max injection below that
-    det_injs = d[d<noise]
+    d2 = d[d<noise]
+    det_injs = d2[d2.index>0]
+    
     try:
+        print 'Get min'
+        
         return det_injs.index[np.argmax(det_injs)]
     except ValueError:
+	print 'ValueError'
         return 0
 
     

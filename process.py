@@ -1,9 +1,12 @@
 from sys import exit
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 import os
 import datetime
 from time import time
-from datetime import datetime
 import sys
 
 import numpy as np
@@ -27,7 +30,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='temp/process'+datetime.now().strftime('%Y-%m-%d_%H-%M-%S')+'.log',
+                    filename='temp/process'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')+'.log',
                     filemode='w')
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
@@ -404,8 +407,8 @@ class Results(object):
         
         # saving
         self.dir = paths.results + self.psr + '/' + self.detector + '/' 
-        self.name = self.psr + '_' + self.detector + '_' + self.kind + '_' + sd.phase2(pdif)
-        self.path = self.dir + self.name
+	self.name = self.psr + '_' + self.detector + '_' + self.kind + '_' + sd.phase2(pdif)
+	self.path = self.dir + self.name
         
         self.issaved = False
         self.log = logging.getLogger('Results')
@@ -486,7 +489,8 @@ class Results(object):
             self.stats[m]['h rec noise'] = psrplot.noise_line(self.h[m])(1)
             self.stats[m]['h rec slope'] = psrplot.lin_fit(self.h[m])(1)
             self.stats[m]['h rec inter'] = psrplot.fit_intersect_noise(self.h[m])
-                    
+            self.stats[m]['lin s rmse']  = psrplot.rmse(lins[m])
+            self.stats[m]['h rec rmse']  = psrplot.rmse(self.h[m])       
 
 class Frequentist(object):
     '''
@@ -884,7 +888,7 @@ class MPstats(object):
                 
 ## SPECIAL CASES
 class SinglePulsar(object):
-    def __init__(self, detector, psr, pd=['p'], methods=['GR', 'G4v']):
+    def __init__(self, detector, psr, pd=['m',0], methods=['GR', 'G4v']):
         self.detector = detector
         self.psr = psr
         
@@ -903,7 +907,7 @@ class SinglePulsar(object):
 
             for p in self.pd:
     
-                ij = InjSearch(self.detector, self.psr, 2000, kind, p, 100, hinjrange=hinjrange, rangeparam=[range])
+                ij = Frequentist(self.detector, self.psr, 5000, kind, p, 500, hinjrange=hinjrange, rangeparam=[range])
         
                 ij.analyze(self.search_methods)
         
@@ -914,8 +918,8 @@ class SinglePulsar(object):
                 
                 
 class Crab(SinglePulsar):
-    def __init__(self, paramrange='all', methods=['GR', 'G4v'], extra_name='S6'):
-        super(Crab, self).__init__('H1', 'J0534+2200', methods=methods)
+    def __init__(self, detector='H1', paramrange='all', methods=['GR', 'G4v'], extra_name=''):
+        super(Crab, self).__init__(detector, 'J0534+2200', methods=methods)
         self.scan(range=paramrange, hinjrange=[1.0E-27, 1.0E-24])
 
       
